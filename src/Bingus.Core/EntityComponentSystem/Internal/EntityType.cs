@@ -1,11 +1,11 @@
 ﻿using System.Buffers;
 using System.Reflection;
 
-namespace Bingus.Core.EntityComponentSystem;
+namespace Bingus.Core.EntityComponentSystem.Internal;
 
 internal sealed class EntityType : IEquatable<EntityType>
 {
-    private static Dictionary<int, EntityType> _cache = new();
+    private static readonly Dictionary<int, EntityType> Cache = new();
     private static readonly TypeNameComparer NameComparer = new();
 
     private readonly int _hashCode;
@@ -55,28 +55,27 @@ internal sealed class EntityType : IEquatable<EntityType>
     public static EntityType Create(ReadOnlySpan<Type> componentTypes)
     {
         var hash = TypeHash(componentTypes);
-        if (_cache.TryGetValue(hash, out var value))
+        if (Cache.TryGetValue(hash, out var value))
             return value;
 
-        return _cache[hash] = new EntityType(componentTypes);
+        return Cache[hash] = new EntityType(componentTypes);
     }
 
     public EntityType With(ReadOnlySpan<Type> with)
     {
         var newLength = _components.Length + with.Length;
-        var arr = ArrayPool<Type>.Shared.Rent(newLength);
-        Array.Copy(_components, arr, _components.Length);
+        using var arr = ArrayPool<Type>.Shared.RentDisposable(newLength);
+        Array.Copy(_components, arr.Array, _components.Length);
         for (var i = 0; i < with.Length; i++)
             arr[_components.Length + i] = with[i];
         
-        var eType = Create(new Span<Type>(arr, 0, newLength));
-        ArrayPool<Type>.Shared.Return(arr);
+        var eType = Create(arr);
         return eType;
     }
 
     public EntityType Without(Type[] without)
     {
-        var arr = ArrayPool<Type>.Shared.Rent(_components.Length - without.Length);
+        using var arr = ArrayPool<Type>.Shared.RentDisposable(_components.Length - without.Length);
         var dstIndex = 0;
         foreach (var type in _components)
         {
@@ -88,7 +87,6 @@ internal sealed class EntityType : IEquatable<EntityType>
         }
         
         var eType = Create(arr);
-        ArrayPool<Type>.Shared.Return(arr);
         return eType;
     }
 
@@ -130,7 +128,11 @@ internal sealed class EntityType : IEquatable<EntityType>
     
     public override string ToString()
     {
-        return _name ??= "[" + string.Join(", ", _components.Select(x => x.GetCustomAttribute<ComponentIdAttribute>().Id)) + "]";
+        var componentIds = _components.Select(x =>
+            x.GetCustomAttribute<ComponentIdAttribute>()?.Id ??
+            throw new InvalidOperationException("Component does not have an ID."));
+        
+        return _name ??= "[" + string.Join(", ", componentIds) + "]";
     }
 
     private static int TypeHash(ReadOnlySpan<Type> componentIds)

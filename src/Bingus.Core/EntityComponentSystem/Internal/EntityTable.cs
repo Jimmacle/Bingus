@@ -1,6 +1,6 @@
 ﻿using Bingus.Core.Components;
 
-namespace Bingus.Core.EntityComponentSystem;
+namespace Bingus.Core.EntityComponentSystem.Internal;
 
 /// <summary>
 /// Stores components for entities with the same archetype (set of components). This allows for fast iteration of

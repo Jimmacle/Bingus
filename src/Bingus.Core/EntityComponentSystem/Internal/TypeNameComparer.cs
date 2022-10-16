@@ -1,8 +1,8 @@
-﻿namespace Bingus.Core.EntityComponentSystem;
+﻿namespace Bingus.Core.EntityComponentSystem.Internal;
 
-public sealed class TypeNameComparer : IComparer<Type>
+internal sealed class TypeNameComparer : IComparer<Type>
 {
-    public int Compare(Type x, Type y)
+    public int Compare(Type? x, Type? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (ReferenceEquals(null, y)) return 1;

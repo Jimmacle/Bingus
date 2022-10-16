@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = new EngineBuilder();
 builder.Services.AddSingleton<IEntityIdProvider, RandomEntityIdProvider>();
 builder.Services.AddScoped<ECS>();
-builder.Services.AddScoped<IGameLoop>(_ => new FixedGameLoop(TimeSpan.FromSeconds(0)));
+builder.Services.AddScoped<IGameLoop>(_ => new FixedGameLoop(TimeSpan.FromSeconds(1/60d)));
 //builder.Services.AddScoped<ISystem, TickLoggingSystem>();
 //builder.Services.AddScoped<ISystem, PhysicsSystem>();
 //builder.Services.AddScoped<ISystem, PositionLoggingSystem>();

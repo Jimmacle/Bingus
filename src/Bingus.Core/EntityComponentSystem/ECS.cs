@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.Collections;
 using Bingus.Core.Components;
+using Bingus.Core.EntityComponentSystem.Internal;
 using Bingus.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,11 +23,10 @@ public sealed class ECS
 
     public IEnumerable<T> Filter<T>() where T : struct, IComponent<T>
     {
-        var typeArr = ArrayPool<Type>.Shared.Rent(1);
-        typeArr[0] = typeof(T);
-        var type = EntityType.Create(new Span<Type>(typeArr, 0, 1));
-        ArrayPool<Type>.Shared.Return(typeArr);
-        
+        using var types = ArrayPool<Type>.Shared.RentDisposable(1);
+        types[0] = typeof(T);
+        var type = EntityType.Create(types);
+
         foreach (var table in _tables)
         {
             if (!table.Key.Is(type))
@@ -39,11 +39,10 @@ public sealed class ECS
     
     public IEnumerable<(T1, T2)> Filter<T1, T2>() where T1 : struct, IComponent<T1> where T2 : struct, IComponent<T2>
     {
-        var typeArr = ArrayPool<Type>.Shared.Rent(2);
-        typeArr[0] = typeof(T1);
-        typeArr[1] = typeof(T2);
-        var type = EntityType.Create(new Span<Type>(typeArr, 0, 2));
-        ArrayPool<Type>.Shared.Return(typeArr);
+        using var types = ArrayPool<Type>.Shared.RentDisposable(2);
+        types[0] = typeof(T1);
+        types[1] = typeof(T2);
+        var type = EntityType.Create(types);
         foreach (var table in _tables)
         {
             if (!table.Key.Is(type))
@@ -60,12 +59,11 @@ public sealed class ECS
     
     public IEnumerable<(T1, T2, T3)> Filter<T1, T2, T3>() where T1 : struct, IComponent<T1> where T2 : struct, IComponent<T2> where T3 : struct, IComponent<T3>
     {
-        var typeArr = ArrayPool<Type>.Shared.Rent(3);
-        typeArr[0] = typeof(T1);
-        typeArr[1] = typeof(T2);
-        typeArr[2] = typeof(T3);
-        var type = EntityType.Create(new Span<Type>(typeArr, 0, 3));
-        ArrayPool<Type>.Shared.Return(typeArr);
+        using var types = ArrayPool<Type>.Shared.RentDisposable(3);
+        types[0] = typeof(T1);
+        types[1] = typeof(T2);
+        types[2] = typeof(T3);
+        var type = EntityType.Create(types);
         foreach (var table in _tables)
         {
             if (!table.Key.Is(type))
@@ -107,27 +105,24 @@ public sealed class ECS
 
     public void AddComponent<T>(EntityId entity, in T component) where T : struct, IComponent<T>
     {
-        var typeArr = ArrayPool<Type>.Shared.Rent(1);
-        typeArr[0] = typeof(T);
-        var typeSpan = new Span<Type>(typeArr, 0, 1);
+        using var types = ArrayPool<Type>.Shared.RentDisposable(1);
+        types[0] = typeof(T);
 
         if (_entityIndex.ContainsKey(entity))
         {
             var oldTable = _entityIndex[entity];
-            var newType = oldTable.EntityType.With(typeSpan);
+            var newType = oldTable.EntityType.With(types);
             var newTable = GetTable(newType);
             newTable.MoveFrom(oldTable, entity, component);
             _entityIndex[entity] = newTable;
         }
         else
         {
-            var type = EntityType.Create(typeSpan);
+            var type = EntityType.Create(types);
             var table = GetTable(type);
             table.Add(entity, component);
             _entityIndex[entity] = table;
         }
-        
-        ArrayPool<Type>.Shared.Return(typeArr);
     }
 
     public EntityBuilder CreateEntity()

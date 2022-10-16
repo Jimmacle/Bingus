@@ -1,5 +1,6 @@
 using Bingus.Core.Components;
 using Bingus.Core.EntityComponentSystem;
+using Bingus.Core.EntityComponentSystem.Internal;
 using Bingus.Core.Services;
 
 namespace MiscTests;
