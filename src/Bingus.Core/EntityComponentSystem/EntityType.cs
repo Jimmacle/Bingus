@@ -4,6 +4,7 @@ namespace Bingus.Core.EntityComponentSystem;
 
 public sealed class EntityType : IEquatable<EntityType>
 {
+    private static Dictionary<int, EntityType> _cache = new();
     private static readonly TypeNameComparer NameComparer = new();
 
     private readonly int _hashCode;
@@ -43,11 +44,20 @@ public sealed class EntityType : IEquatable<EntityType>
 
     public ReadOnlySpan<Type> Components => _components;
 
-    public EntityType(params Type[] componentIds)
+    private EntityType(params Type[] componentIds)
     {
         _components = componentIds;
         Array.Sort(_components, NameComparer);
-        _hashCode = _components.Aggregate(0, HashCode.Combine);
+        _hashCode = TypeHash(_components);
+    }
+
+    public static EntityType Create(params Type[] componentTypes)
+    {
+        var hash = TypeHash(componentTypes);
+        if (_cache.TryGetValue(hash, out var value))
+            return value;
+
+        return _cache[hash] = Create(componentTypes);
     }
 
     public EntityType With(params Type[] with)
@@ -55,7 +65,7 @@ public sealed class EntityType : IEquatable<EntityType>
         var arr = new Type[_components.Length + with.Length];
         Array.Copy(_components, arr, _components.Length);
         Array.Copy(with, 0, arr, _components.Length, with.Length);
-        return new EntityType(arr);
+        return Create(arr);
     }
 
     public EntityType Without(params Type[] without)
@@ -71,7 +81,7 @@ public sealed class EntityType : IEquatable<EntityType>
             dstIndex++;
         }
 
-        return new EntityType(arr);
+        return Create(arr);
     }
 
     public bool Match(EntityType from, Type with)
@@ -107,5 +117,10 @@ public sealed class EntityType : IEquatable<EntityType>
     public override string ToString()
     {
         return _name ??= "[" + string.Join(", ", _components.Select(x => x.GetCustomAttribute<ComponentIdAttribute>().Id)) + "]";
+    }
+
+    private static int TypeHash(IEnumerable<Type> componentIds)
+    {
+        return componentIds.Aggregate(0, HashCode.Combine);
     }
 }

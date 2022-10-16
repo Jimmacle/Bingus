@@ -36,8 +36,8 @@ public class UnitTest1
     [Fact]
     public void Test3()
     {
-        var type1 = new EntityType(typeof(EntityId), typeof(NameComponent));
-        var type2 = new EntityType(typeof(EntityId), typeof(NameComponent));
+        var type1 = EntityType.Create(typeof(EntityId), typeof(NameComponent));
+        var type2 = EntityType.Create(typeof(EntityId), typeof(NameComponent));
         
         Assert.Equal(type1, type2);
     }
@@ -45,8 +45,8 @@ public class UnitTest1
     [Fact]
     public void Test4()
     {
-        var super = new EntityType(typeof(EntityId));
-        var sub = new EntityType(typeof(EntityId), typeof(NameComponent));
+        var super = EntityType.Create(typeof(EntityId));
+        var sub = EntityType.Create(typeof(EntityId), typeof(NameComponent));
         
         Assert.True(sub.Is(super));
         Assert.True(!super.Is(sub));

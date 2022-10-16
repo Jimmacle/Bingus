@@ -19,7 +19,7 @@ public sealed class ECS
 
     public IEnumerable<T> Filter<T>() where T : struct, IComponent<T>
     {
-        var type = new EntityType(typeof(T));
+        var type = EntityType.Create(typeof(T));
         foreach (var table in _tables)
         {
             if (!table.Key.Is(type))
@@ -32,7 +32,7 @@ public sealed class ECS
     
     public IEnumerable<(T1, T2)> Filter<T1, T2>() where T1 : struct, IComponent<T1> where T2 : struct, IComponent<T2>
     {
-        var type = new EntityType(typeof(T1), typeof(T2));
+        var type = EntityType.Create(typeof(T1), typeof(T2));
         foreach (var table in _tables)
         {
             if (!table.Key.Is(type))
@@ -43,6 +43,25 @@ public sealed class ECS
                 var t1 = table.Value.Get<T1>(i);
                 var t2 = table.Value.Get<T2>(i);
                 yield return (t1, t2);
+            }
+        }
+    }
+    
+    public IEnumerable<(T1, T2, T3)> Filter<T1, T2, T3>() where T1 : struct, IComponent<T1> where T2 : struct, IComponent<T2> where T3 : struct, IComponent<T3>
+    {
+        var type = EntityType.Create(typeof(T1), typeof(T2), typeof(T3));
+        foreach (var table in _tables)
+        {
+            if (!table.Key.Is(type))
+                continue;
+
+            for (var i = 0; i < table.Value.Rows; i++)
+            {
+                var t1 = table.Value.Get<T1>(i);
+                var t2 = table.Value.Get<T2>(i);
+                var t3 = table.Value.Get<T3>(i);
+                
+                yield return (t1, t2, t3);
             }
         }
     }
@@ -79,7 +98,7 @@ public sealed class ECS
         }
         else
         {
-            var type = new EntityType(typeof(T));
+            var type = EntityType.Create(typeof(T));
             var table = GetTable(type);
             table.Add(entity, component);
             _entityIndex[entity] = table;
