@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Bingus.Core\Bingus.Core\Bingus.Core.csproj" />
+      <ProjectReference Include="..\Bingus.Core\Bingus.Core.csproj" />
     </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\src\Bingus.Core\Bingus.Core\Bingus.Core.csproj" />
+      <ProjectReference Include="..\..\src\Bingus.Core\Bingus.Core.csproj" />
     </ItemGroup>
 
 </Project>
