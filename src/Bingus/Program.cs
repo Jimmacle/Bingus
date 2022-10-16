@@ -8,8 +8,10 @@ using Bingus.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = new EngineBuilder();
-builder.Services.AddScoped<IEntityIdProvider, RandomEntityIdProvider>();
+builder.Services.AddSingleton<IEntityIdProvider, RandomEntityIdProvider>();
 builder.Services.AddScoped<ECS>();
+builder.Services.AddScoped<IGameLoop>(_ => new FixedGameLoop(TimeSpan.FromSeconds(1 / 60d)));
+builder.Services.AddScoped<ISystem, TickLoggingSystem>();
 var engine = builder.Build();
 
 var scene = engine.CreateScene();
@@ -45,3 +47,10 @@ Console.WriteLine($"\nEntity colors: {string.Join(", ", entityColors)}");
 
 var entityIds = ecs.Filter<EntityId>();
 Console.WriteLine($"\nEntity IDs: {string.Join(", ", entityIds)}");
+
+while (Console.ReadKey().Key != ConsoleKey.Q)
+{
+    scene.Run();
+    Console.ReadKey();
+    await scene.StopAsync();
+}

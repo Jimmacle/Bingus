@@ -2,21 +2,12 @@
 
 namespace Bingus.Core.Services;
 
-public delegate void GameTickDel(TimeSpan dt, CancellationToken cancel);
-
-public interface IGameLoop
-{
-    TimeSpan TickTime { get; }
-    void Run(GameTickDel tickAction);
-    void Stop();
-}
-
 public class FixedGameLoop : IGameLoop
 {
     private readonly TimeSpan _dt;
-    private readonly CancellationTokenSource _stop = new();
-    private readonly SemaphoreSlim _tickSemaphore = new(1);
+    private CancellationTokenSource _stop = new();
     private readonly Stopwatch _sw = new();
+    private readonly SemaphoreSlim _stopped = new(0);
 
     public FixedGameLoop(TimeSpan dt)
     {
@@ -27,11 +18,13 @@ public class FixedGameLoop : IGameLoop
 
     public void Run(GameTickDel tickAction)
     {
+        if (!_stop.TryReset())
+            _stop = new CancellationTokenSource();
+        
         while (!_stop.IsCancellationRequested)
         {
             _sw.Restart();
             tickAction(_dt, _stop.Token);
-            _tickSemaphore.Wait();
 
             while (_sw.Elapsed < _dt)
             {
@@ -40,10 +33,13 @@ public class FixedGameLoop : IGameLoop
 
             TickTime = _sw.Elapsed;
         }
+
+        _stopped.Release();
     }
 
-    public void Stop()
+    public async Task StopAsync()
     {
         _stop.Cancel();
+        await _stopped.WaitAsync();
     }
 }

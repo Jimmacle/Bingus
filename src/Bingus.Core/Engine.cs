@@ -42,13 +42,17 @@ public class Scene
     public ECS ECS { get; }
 
     private readonly IEnumerable<ISystem> _systems;
+    private readonly IGameLoop _loop;
 
     public Scene(ECS ecs, IGameLoop loop, IEnumerable<ISystem> systems)
     {
         ECS = ecs;
+        _loop = loop;
         _systems = systems;
-        loop.Run(TickAction);
     }
+
+    public void Run() => new Thread(() => _loop.Run(TickAction)).Start();
+    public Task StopAsync() => _loop.StopAsync();
 
     private void TickAction(TimeSpan dt, CancellationToken cancel)
     {
