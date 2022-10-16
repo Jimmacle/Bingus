@@ -11,16 +11,20 @@ using Microsoft.Extensions.DependencyInjection;
 var builder = new EngineBuilder();
 builder.Services.AddSingleton<IEntityIdProvider, RandomEntityIdProvider>();
 builder.Services.AddScoped<ECS>();
-builder.Services.AddScoped<IGameLoop>(_ => new FixedGameLoop(TimeSpan.FromSeconds(1 / 60d)));
+builder.Services.AddScoped<IGameLoop>(_ => new FixedGameLoop(TimeSpan.FromSeconds(0)));
 //builder.Services.AddScoped<ISystem, TickLoggingSystem>();
-builder.Services.AddScoped<ISystem, PhysicsSystem>();
-builder.Services.AddScoped<ISystem, PositionLoggingSystem>();
+//builder.Services.AddScoped<ISystem, PhysicsSystem>();
+//builder.Services.AddScoped<ISystem, PositionLoggingSystem>();
+builder.Services.AddScoped<ISystem, FilterTestSystem>();
 var engine = builder.Build();
 var scene = engine.CreateScene();
 
-scene.ECS.CreateEntity()
-    .With(new TransformComponent())
-    .With(new VelocityComponent { Velocity = new Vector3(1, 0, 0) });
+foreach (var i in Enumerable.Range(0, 10000))
+{
+    scene.ECS.CreateEntity()
+        .With(new TransformComponent())
+        .With(new VelocityComponent { Velocity = new Vector3(1, 0, 0) });
+}
 
 while (Console.ReadKey().Key != ConsoleKey.Q)
 {

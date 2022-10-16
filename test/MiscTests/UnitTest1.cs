@@ -36,8 +36,8 @@ public class UnitTest1
     [Fact]
     public void Test3()
     {
-        var type1 = EntityType.Create(typeof(EntityId), typeof(NameComponent));
-        var type2 = EntityType.Create(typeof(EntityId), typeof(NameComponent));
+        var type1 = EntityType.Create(new[]{typeof(EntityId), typeof(NameComponent)});
+        var type2 = EntityType.Create(new[]{typeof(EntityId), typeof(NameComponent)});
         
         Assert.Equal(type1, type2);
     }
@@ -45,8 +45,8 @@ public class UnitTest1
     [Fact]
     public void Test4()
     {
-        var super = EntityType.Create(typeof(EntityId));
-        var sub = EntityType.Create(typeof(EntityId), typeof(NameComponent));
+        var super = EntityType.Create(new[]{typeof(EntityId)});
+        var sub = EntityType.Create(new[]{typeof(EntityId), typeof(NameComponent)});
         
         Assert.True(sub.Is(super));
         Assert.True(!super.Is(sub));
@@ -83,7 +83,7 @@ public class UnitTest1
             ecs.CreateEntity().With(new NameComponent($"{i + 5}")).With(new PositionComponent());
         }
 
-        var names = ecs.Filter<NameComponent, PositionComponent>().Select(x => x.Item1.Name).ToArray();
+        var names = ecs.Filter<EntityId, NameComponent, PositionComponent>().Select(x => x.Item2.Name).ToArray();
         
         Array.Sort(expectedNames);
         Array.Sort(names);

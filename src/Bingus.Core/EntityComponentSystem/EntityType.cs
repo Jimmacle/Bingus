@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Buffers;
+using System.Reflection;
 
 namespace Bingus.Core.EntityComponentSystem;
 
-public sealed class EntityType : IEquatable<EntityType>
+internal sealed class EntityType : IEquatable<EntityType>
 {
     private static Dictionary<int, EntityType> _cache = new();
     private static readonly TypeNameComparer NameComparer = new();
@@ -44,33 +45,38 @@ public sealed class EntityType : IEquatable<EntityType>
 
     public ReadOnlySpan<Type> Components => _components;
 
-    private EntityType(params Type[] componentIds)
+    private EntityType(ReadOnlySpan<Type> componentIds)
     {
-        _components = componentIds;
+        _components = componentIds.ToArray();
         Array.Sort(_components, NameComparer);
         _hashCode = TypeHash(_components);
     }
 
-    public static EntityType Create(params Type[] componentTypes)
+    public static EntityType Create(ReadOnlySpan<Type> componentTypes)
     {
         var hash = TypeHash(componentTypes);
         if (_cache.TryGetValue(hash, out var value))
             return value;
 
-        return _cache[hash] = Create(componentTypes);
+        return _cache[hash] = new EntityType(componentTypes);
     }
 
-    public EntityType With(params Type[] with)
+    public EntityType With(ReadOnlySpan<Type> with)
     {
-        var arr = new Type[_components.Length + with.Length];
+        var newLength = _components.Length + with.Length;
+        var arr = ArrayPool<Type>.Shared.Rent(newLength);
         Array.Copy(_components, arr, _components.Length);
-        Array.Copy(with, 0, arr, _components.Length, with.Length);
-        return Create(arr);
+        for (var i = 0; i < with.Length; i++)
+            arr[_components.Length + i] = with[i];
+        
+        var eType = Create(new Span<Type>(arr, 0, newLength));
+        ArrayPool<Type>.Shared.Return(arr);
+        return eType;
     }
 
-    public EntityType Without(params Type[] without)
+    public EntityType Without(Type[] without)
     {
-        var arr = new Type[_components.Length - without.Length];
+        var arr = ArrayPool<Type>.Shared.Rent(_components.Length - without.Length);
         var dstIndex = 0;
         foreach (var type in _components)
         {
@@ -80,8 +86,10 @@ public sealed class EntityType : IEquatable<EntityType>
             arr[dstIndex] = type;
             dstIndex++;
         }
-
-        return Create(arr);
+        
+        var eType = Create(arr);
+        ArrayPool<Type>.Shared.Return(arr);
+        return eType;
     }
 
     public bool Match(EntityType from, Type with)
@@ -101,7 +109,13 @@ public sealed class EntityType : IEquatable<EntityType>
 
     public bool Is(EntityType supertype)
     {
-        return supertype._components.All(x => _components.Contains(x));
+        foreach (var superComp in supertype._components)
+        {
+            if (!_components.Contains(superComp))
+                return false;
+        }
+
+        return true;
     }
 
     public bool IsSupertypeOf(EntityType subtype)
@@ -119,8 +133,12 @@ public sealed class EntityType : IEquatable<EntityType>
         return _name ??= "[" + string.Join(", ", _components.Select(x => x.GetCustomAttribute<ComponentIdAttribute>().Id)) + "]";
     }
 
-    private static int TypeHash(IEnumerable<Type> componentIds)
+    private static int TypeHash(ReadOnlySpan<Type> componentIds)
     {
-        return componentIds.Aggregate(0, HashCode.Combine);
+        var hashCode = 0;
+        foreach (var t in componentIds)
+            hashCode = HashCode.Combine(hashCode, t);
+
+        return hashCode;
     }
 }
