@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bingus", "src\Bingus\Bingus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "test\Benchmarks\Benchmarks.csproj", "{0471538F-CE79-4AF6-9774-06E69437B774}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bingus.Analyzers", "src\Bingus.Analyzers\Bingus.Analyzers.csproj", "{991AD879-BF5A-4715-B61E-7AE1E520964B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,7 @@ Global
 		{7E11D6F3-C0B8-425B-82DC-8C2E0500010A} = {722E2AD1-BB99-4536-92DD-EB7ACC5AC421}
 		{5D698776-8FC3-4B75-BA14-571C3ED1663A} = {C36C5847-1316-4B41-94CA-1CA9601C6B55}
 		{0471538F-CE79-4AF6-9774-06E69437B774} = {722E2AD1-BB99-4536-92DD-EB7ACC5AC421}
+		{991AD879-BF5A-4715-B61E-7AE1E520964B} = {C36C5847-1316-4B41-94CA-1CA9601C6B55}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0F1FA609-B4C2-4DFA-9C17-0F64B02AC49A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -42,5 +45,9 @@ Global
 		{0471538F-CE79-4AF6-9774-06E69437B774}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0471538F-CE79-4AF6-9774-06E69437B774}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0471538F-CE79-4AF6-9774-06E69437B774}.Release|Any CPU.Build.0 = Release|Any CPU
+		{991AD879-BF5A-4715-B61E-7AE1E520964B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{991AD879-BF5A-4715-B61E-7AE1E520964B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{991AD879-BF5A-4715-B61E-7AE1E520964B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{991AD879-BF5A-4715-B61E-7AE1E520964B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

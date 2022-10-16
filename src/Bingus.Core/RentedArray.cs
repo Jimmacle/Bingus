@@ -2,6 +2,8 @@
 
 namespace Bingus.Core;
 
+#pragma warning disable Bingus0001
+
 public static class ArrayPoolExtensions
 {
     public static RentedArray<T> RentDisposable<T>(this ArrayPool<T> pool, int length)
@@ -10,6 +12,10 @@ public static class ArrayPoolExtensions
     }
 }
 
+/// <summary>
+/// Wraps an array rented from an <see cref="ArrayPool{T}"/> in a disposable.
+/// </summary>
+/// <typeparam name="T">The type of elements in the array.</typeparam>
 public readonly struct RentedArray<T> : IDisposable
 {
     private readonly ArrayPool<T> _source;
@@ -30,7 +36,7 @@ public readonly struct RentedArray<T> : IDisposable
     }
 
     public Span<T> Span => new(_array, 0, _length);
-
+    
     public T[] Array => _array;
 
     public void Dispose()

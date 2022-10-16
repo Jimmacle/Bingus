@@ -17,4 +17,8 @@
             <_Parameter1>MiscTests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
+
+    <ItemGroup>
+        <Analyzer Include="..\Bingus.Analyzers\bin\Debug\net7.0\Bingus.Analyzers.dll"/>
+    </ItemGroup>
 </Project>
