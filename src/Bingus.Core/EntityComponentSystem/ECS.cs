@@ -60,8 +60,6 @@ public sealed class ECS
     
     public IEnumerable<(T1, T2, T3)> Filter<T1, T2, T3>() where T1 : struct, IComponent<T1> where T2 : struct, IComponent<T2> where T3 : struct, IComponent<T3>
     {
-        //return new FilterEnumerable<T1, T2, T3>(this);
-        
         var typeArr = ArrayPool<Type>.Shared.Rent(3);
         typeArr[0] = typeof(T1);
         typeArr[1] = typeof(T2);
@@ -137,107 +135,5 @@ public sealed class ECS
         var id = _idProvider.Consume();
         AddComponent(id, id);
         return new EntityBuilder(this, id);
-    }
-
-    private readonly struct FilterEnumerable<T1, T2, T3> : IEnumerable<(T1, T2, T3)>
-        where T1 : struct, IComponent<T1>
-        where T2 : struct, IComponent<T2>
-        where T3 : struct, IComponent<T3>
-    {
-        private readonly ECS _ecs;
-
-        public FilterEnumerable(ECS ecs)
-        {
-            _ecs = ecs;
-        }
-
-        public IEnumerator<(T1, T2, T3)> GetEnumerator()
-        {
-            return new FilterEnumerator<T1, T2, T3>(_ecs);
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-    }
-
-    private struct FilterEnumerator<T1, T2, T3> : IEnumerator<(T1, T2, T3)>
-        where T1 : struct, IComponent<T1>
-        where T2 : struct, IComponent<T2>
-        where T3 : struct, IComponent<T3>
-    {
-        private readonly ECS _ecs;
-        private int _tableIndex = 0;
-        private int _rowIndex = -1;
-        private readonly EntityType _filterType;
-    
-        public FilterEnumerator(ECS ecs)
-        {
-            _ecs = ecs;
-
-            var arr = ArrayPool<Type>.Shared.Rent(3);
-            var arrSpan = new Span<Type>(arr, 0, 3)
-            {
-                [0] = typeof(T1),
-                [1] = typeof(T2),
-                [2] = typeof(T3)
-            };
-            _filterType = EntityType.Create(arrSpan);
-            ArrayPool<Type>.Shared.Return(arr);
-        }
-
-        public bool MoveNext()
-        {
-            if (NoMoreEntities())
-                return false;
-
-            if (AtEndOfTable())
-            {
-                _rowIndex = -1;
-                do
-                {
-                    if (NoMoreTables())
-                        return false;
-                    
-                    _tableIndex++;
-                } while (!CurrentTable.EntityType.Is(_filterType));
-            }
-            
-            _rowIndex++;
-            Current = (
-                CurrentTable.Get<T1>(_rowIndex),
-                CurrentTable.Get<T2>(_rowIndex),
-                CurrentTable.Get<T3>(_rowIndex));
-            return true;
-        }
-
-        private bool AtEndOfTable()
-        {
-            return _rowIndex == CurrentTable.Rows - 1;
-        }
-
-        private bool NoMoreEntities()
-        {
-            return AtEndOfTable() && NoMoreTables();
-        }
-
-        private bool NoMoreTables()
-        {
-            return _tableIndex == _ecs._tableList.Count - 1;
-        }
-
-        private EntityTable CurrentTable => _ecs._tableList[_tableIndex];
-
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
-
-        public (T1, T2, T3) Current { get; private set; }
-
-        object IEnumerator.Current => Current;
-
-        public void Dispose() { }
     }
 }
