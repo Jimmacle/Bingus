@@ -2,7 +2,7 @@
 
 namespace Bingus.Core.Components;
 
-[ComponentId("position")]
+[Component("position")]
 public readonly struct PositionComponent : IComponent<PositionComponent>
 {
     public int X { get; init; }

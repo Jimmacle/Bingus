@@ -15,11 +15,12 @@ public class PhysicsSystem : ISystem
     
     public void Tick(TimeSpan dt)
     {
-        foreach (var (id, transform, velocity) in _ecs.Filter<EntityId, TransformComponent, VelocityComponent>())
-        {
-            var translate = Matrix4x4.CreateTranslation(velocity.Velocity * new Vector3((float)dt.TotalSeconds));
-            var newTransform = transform.Transform * translate;
-            _ecs.Set(id, new TransformComponent { Transform = newTransform });
-        }
+        // TODO
+        // foreach (var (id, transform, velocity) in _ecs.Filter<EntityId, TransformComponent, VelocityComponent>())
+        // {
+        //     var translate = Matrix4x4.CreateTranslation(velocity.Velocity * new Vector3((float)dt.TotalSeconds));
+        //     var newTransform = transform.Transform * translate;
+        //     _ecs.Set(id, new TransformComponent { Transform = newTransform });
+        // }
     }
 }

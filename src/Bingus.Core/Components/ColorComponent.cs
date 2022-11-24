@@ -3,7 +3,7 @@ using Bingus.Core.EntityComponentSystem;
 
 namespace Bingus.Core.Components;
 
-[ComponentId("color")]
+[Component("color")]
 public readonly struct ColorComponent : IComponent<ColorComponent>
 {
     public Color Color { get; init; }

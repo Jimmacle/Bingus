@@ -1,12 +1,24 @@
+using System.Diagnostics;
+using System.Numerics;
 using Bingus.Core.Components;
 using Bingus.Core.EntityComponentSystem;
 using Bingus.Core.EntityComponentSystem.Internal;
 using Bingus.Core.Services;
+using Bingus.Numerics;
+using Bingus.Numerics.Matrices;
+using CodegenAnalysis;
 
 namespace MiscTests;
 
 public class UnitTest1
 {
+    [Fact]
+    public void MMul()
+    {
+
+        Assert.True(false);
+    }
+    
     [Fact]
     public void Test1()
     {

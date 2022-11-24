@@ -3,7 +3,7 @@ using Bingus.Core.EntityComponentSystem;
 
 namespace Bingus.Core.Components;
 
-[ComponentId("transform")]
+[Component("transform")]
 public readonly struct TransformComponent : IComponent<TransformComponent>
 {
     public Matrix4x4 Transform { get; init; }

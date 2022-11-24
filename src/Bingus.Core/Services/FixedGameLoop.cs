@@ -1,13 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 
 namespace Bingus.Core.Services;
 
-public class FixedGameLoop : IGameLoop
+public class FixedGameLoop : IGameLoop, IDisposable
 {
     private readonly TimeSpan _dt;
     private CancellationTokenSource _stop = new();
     private readonly Stopwatch _sw = new();
     private readonly SemaphoreSlim _stopped = new(0);
+    private readonly AutoResetEvent _tick = new(false);
 
     public FixedGameLoop(TimeSpan dt)
     {
@@ -18,6 +20,11 @@ public class FixedGameLoop : IGameLoop
 
     public void Run(GameTickDel tickAction)
     {
+        // Throttles the spin wait to avoid burning up CPU for no reason.
+        using var timer = new HighResolutionTimer(1);
+        timer.Tick += () => _tick.Set();
+        timer.Start();
+
         if (!_stop.TryReset())
             _stop = new CancellationTokenSource();
         
@@ -25,12 +32,15 @@ public class FixedGameLoop : IGameLoop
         {
             _sw.Restart();
             tickAction(_dt, _stop.Token);
-
+            
             while (_sw.Elapsed < _dt)
             {
-                // TODO don't busy wait
+                var remainingTime = _dt - _sw.Elapsed;
+                if (remainingTime > TimeSpan.FromMilliseconds(1))
+                    _tick.WaitOne();
             }
-
+            
+            Console.WriteLine(_sw.Elapsed.TotalMilliseconds);
             TickTime = _sw.Elapsed;
         }
 
@@ -41,5 +51,12 @@ public class FixedGameLoop : IGameLoop
     {
         _stop.Cancel();
         await _stopped.WaitAsync();
+    }
+
+    public void Dispose()
+    {
+        _stop.Dispose();
+        _stopped.Dispose();
+        _tick.Dispose();
     }
 }

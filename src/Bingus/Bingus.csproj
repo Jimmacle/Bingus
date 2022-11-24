@@ -9,6 +9,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Bingus.Core\Bingus.Core.csproj" />
+      <ProjectReference Include="..\Bingus.Numerics\Bingus.Numerics.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CodegenAnalysis" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

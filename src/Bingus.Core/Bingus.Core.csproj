@@ -19,6 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Analyzer Include="..\Bingus.Analyzers\bin\Debug\net7.0\Bingus.Analyzers.dll"/>
+        <Analyzer Include="..\Bingus.Analyzers\bin\Debug\net7.0\Bingus.Analyzers.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Bingus.Numerics\Bingus.Numerics.csproj" />
     </ItemGroup>
 </Project>

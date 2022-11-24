@@ -2,7 +2,7 @@
 
 namespace Bingus.Core.Components;
 
-[ComponentId("name")]
+[Component("name")]
 public readonly struct NameComponent : IComponent<NameComponent>
 {
     public string Name { get; }

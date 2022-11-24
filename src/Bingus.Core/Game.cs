@@ -1,4 +1,5 @@
-﻿using Bingus.Core.EntityComponentSystem;
+﻿using System.Drawing;
+using Bingus.Core.EntityComponentSystem;
 using Bingus.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,24 +8,24 @@ namespace Bingus.Core;
 /// <summary>
 /// Note: Scoped services are scoped by scene.
 /// </summary>
-public sealed class EngineBuilder
+public sealed class GameBuilder
 {
     public IServiceCollection Services { get; } = new ServiceCollection();
 
-    public Engine Build()
+    public Game Build()
     {
-        return ActivatorUtilities.CreateInstance<Engine>(Services.BuildServiceProvider());
+        return ActivatorUtilities.CreateInstance<Game>(Services.BuildServiceProvider());
     }
 }
 
-public sealed class Engine
+public sealed class Game
 {
     public IServiceProvider Services { get; }
 
     public List<Scene> Scenes { get; } = new();
     
     [ActivatorUtilitiesConstructor]
-    public Engine(IServiceProvider services)
+    public Game(IServiceProvider services)
     {
         Services = services;
     }
@@ -61,7 +62,7 @@ public class Scene
             if (cancel.IsCancellationRequested)
                 return;
             
-            system.Tick(dt);   
+            system.Tick(dt);
         }
     }
 }

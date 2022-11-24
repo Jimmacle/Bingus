@@ -5,8 +5,8 @@ namespace Bingus.Core.EntityComponentSystem.Internal;
 
 internal sealed class EntityType : IEquatable<EntityType>
 {
-    private static readonly Dictionary<int, EntityType> Cache = new();
-    private static readonly TypeNameComparer NameComparer = new();
+    private static readonly Dictionary<int, EntityType> _cache = new();
+    private static readonly TypeNameComparer _nameComparer = new();
 
     private readonly int _hashCode;
 
@@ -48,24 +48,25 @@ internal sealed class EntityType : IEquatable<EntityType>
     private EntityType(ReadOnlySpan<Type> componentIds)
     {
         _components = componentIds.ToArray();
-        Array.Sort(_components, NameComparer);
+        Array.Sort(_components, _nameComparer);
         _hashCode = TypeHash(_components);
     }
 
     public static EntityType Create(ReadOnlySpan<Type> componentTypes)
     {
         var hash = TypeHash(componentTypes);
-        if (Cache.TryGetValue(hash, out var value))
+        if (_cache.TryGetValue(hash, out var value))
             return value;
 
-        return Cache[hash] = new EntityType(componentTypes);
+        return _cache[hash] = new EntityType(componentTypes);
     }
 
     public EntityType With(ReadOnlySpan<Type> with)
     {
         var newLength = _components.Length + with.Length;
         using var arr = ArrayPool<Type>.Shared.RentDisposable(newLength);
-        Array.Copy(_components, arr.Array, _components.Length);
+        for (var i = 0; i < _components.Length; i++)
+            arr[i] = _components[i];
         for (var i = 0; i < with.Length; i++)
             arr[_components.Length + i] = with[i];
         
@@ -129,7 +130,7 @@ internal sealed class EntityType : IEquatable<EntityType>
     public override string ToString()
     {
         var componentIds = _components.Select(x =>
-            x.GetCustomAttribute<ComponentIdAttribute>()?.Id ??
+            x.GetCustomAttribute<ComponentAttribute>()?.Id ??
             throw new InvalidOperationException("Component does not have an ID."));
         
         return _name ??= "[" + string.Join(", ", componentIds) + "]";

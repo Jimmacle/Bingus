@@ -1,10 +1,10 @@
-﻿using System.Numerics;
+﻿using Bingus.Numerics;
 using Bingus.Core.EntityComponentSystem;
 
 namespace Bingus.Core.Components;
 
-[ComponentId("velocity")]
+[Component("velocity")]
 public struct VelocityComponent : IComponent<VelocityComponent>
 {
-    public Vector3 Velocity { get; init; }
+    public Vector3<double> Velocity { get; init; }
 }

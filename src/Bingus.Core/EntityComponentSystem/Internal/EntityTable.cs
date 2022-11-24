@@ -1,4 +1,5 @@
-﻿using Bingus.Core.Components;
+﻿using System.Runtime.CompilerServices;
+using Bingus.Core.Components;
 
 namespace Bingus.Core.EntityComponentSystem.Internal;
 
@@ -106,11 +107,13 @@ internal sealed class EntityTable
         _capacity = newCapacity;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<T> Column<T>() where T : struct, IComponent<T>
     {
         return ColumnInternal<T>()[..Rows];
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<T> ColumnInternal<T>() where T : struct, IComponent<T>
     {
         var index = _componentIndex[typeof(T)];

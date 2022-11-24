@@ -13,7 +13,7 @@ public sealed class SequentialEntityIdProvider : IEntityIdProvider
 {
     private ulong _next;
 
-    public EntityId Consume() => new(_next++);
+    public EntityId Consume() => new(Interlocked.Increment(ref _next));
 
     public void Release(EntityId id)
     {
